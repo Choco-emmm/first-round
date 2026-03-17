@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dems.mapper.RepairRecordMapper">
+
+
+    <insert id="insertRecord">
+            insert into repair_record(stu_id,stu_name,building_id,room_id,type,detail,status,create_time,update_time)
+            values(#{stuId},#{stuName},#{buildingId},#{roomId},#{type},#{detail},#{status},#{createTime},#{updateTime})
+    </insert>
+    <update id="updateStatusById">
+            update repair_record set status=#{status},update_time=#{updateTime} where id=#{id}
+    </update>
+    <delete id="batchDelete">
+        /*使用动态sql*/
+        delete from repair_record where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectByUserId" resultType="com.dems.pojo.RepairRecord">
+        select id,stu_id,stu_name,building_id,room_id,type,status,create_time,update_time from repair_record where stu_id=#{userId}
+    </select>
+    <select id="selectAll" resultType="com.dems.pojo.RepairRecord">
+        select id,stu_id,stu_name,building_id,room_id,type,status,create_time,update_time from repair_record
+        <where>
+            <if test="stuId !=null and stuId!=''">
+                and stu_id=#{stuId}
+            </if>
+            <if test="stuName !=null and stuName!=''">
+                and stu_name like concat('%',#{stuName},'%')
+            </if>
+            <if test="buildingId !=null and buildingId!=''">
+                and building_id= #{buildingId}
+            </if>
+            <if test="roomId !=null and roomId!=''">
+                and room_id= #{roomId}
+            </if>
+            <if test="type !=null">
+                and type= #{type}
+            </if>
+            <if test="status !=null">
+                and status= #{status}
+            </if>
+        </where>
+    </select>
+    <select id="selectDetail" resultType="com.dems.pojo.RepairRecord">
+        select * from repair_record where id=#{id}
+    </select>
+    <select id="selectById" resultType="com.dems.pojo.RepairRecord">
+        select id,stu_id,stu_name,building_id,room_id,type,status,create_time,update_time  from repair_record where id= #{id}
+    </select>
+</mapper>

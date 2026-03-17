@@ -1,0 +1,14 @@
+# Java 编译文件
+*.class
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE 配置文件（不要上传）
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.classpath
+.project
+.vscode/
