@@ -14,7 +14,12 @@ public class UserController {
 
     @Autowired
     UserService userService;
-
+    /**
+     * 登录
+     * @param user
+     * @param session
+     * @return
+     */
     @PostMapping("/login")
     public Result login(@RequestBody User user, HttpSession session){
         user = userService.login(user.getUserId(), user.getPassword());
@@ -39,14 +44,23 @@ public class UserController {
         }
     }
 
-    //注册
+    /**
+     * 注册
+     * @param user
+     * @return
+     */
     @PostMapping("/register")
     public Result register (@RequestBody User user){
 
         return userService.register(user);
     }
 
-    //初次登录，绑定宿舍楼号和房号
+    /**
+     * 初次登录，绑定宿舍楼号和房号
+     * @param user
+     * @param session
+     * @return
+     */
     @PutMapping("/bind")
     public Result bind(@RequestBody User user, HttpSession session){
         //从session中获取user
@@ -66,7 +80,12 @@ public class UserController {
         return r1;
     }
 
-    //修改密码
+    /**
+     * 修改密码
+     * @param user
+     * @param session
+     * @return
+     */
     @PutMapping("/updatePass")
     public Result updatePass(@RequestBody User user, HttpSession session){
         //从session中获取user
@@ -92,7 +111,11 @@ public class UserController {
         return r;
     }
 
-    //查看自己的基本信息
+    /**
+     * 查看自己的基本信息
+     * @param session
+     * @return
+     */
     @GetMapping("/info")
     public Result info(HttpSession session){
         User user = (User) session.getAttribute("user");

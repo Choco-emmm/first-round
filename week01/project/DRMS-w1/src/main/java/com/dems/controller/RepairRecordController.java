@@ -16,7 +16,12 @@ public class RepairRecordController {
     @Autowired
     RepairRecordService repairRecordService;
 
-    //学生创建报修单
+    /**
+     * 学生创建报修单
+     * @param rr
+     * @param session
+     * @return
+     */
     @PostMapping("/create")
     public Result createRepairRecord(@RequestBody RepairRecord rr, HttpSession  session){
         //从session中获取user
@@ -25,15 +30,23 @@ public class RepairRecordController {
        return repairRecordService.create(rr, user);
     }
 
-    //学生查看自己的报修记录
-    //不带详情信息，防止到时候页面卡顿
+    /**
+     * 学生查看自己的报修记录
+     * 不带详情信息，防止到时候页面卡顿
+     * @param session
+     * @return
+     */
     @GetMapping("/listById")
     public Result listById(HttpSession session){
         User user = (User) session.getAttribute("user");
         return repairRecordService.listById(user.getUserId());
     }
 
-    //批量删除报修单（学生和管理员都能调用）
+    /**
+     * 批量删除报修单（学生和管理员都能调用）
+     * @param ids
+     * @return
+     */
     @DeleteMapping("/delete")
     public Result delete(@RequestParam List<Integer> ids){
         /**
@@ -46,20 +59,33 @@ public class RepairRecordController {
         return repairRecordService.delete(ids);
     }
 
-    //管理员查询所有报修单（支持按学号，姓名（姓名可以模糊查询），楼号，房号，类型，状态来查询）
-    //不带详情信息，防止到时候页面卡顿
+    /**
+     * 管理员查询所有报修单（支持按学号，姓名（姓名可以模糊查询），楼号，房号，类型，状态来查询）
+     * 不带详情信息，防止到时候页面卡顿
+     * @param repairRecord
+     * @return
+     */
     @GetMapping("/list")
     public Result list(@RequestBody(required = false) RepairRecord repairRecord){
         return repairRecordService.list(repairRecord);
     }
 
-    //查看单个报修单的详情（学生和管理员都能调用）
+    /**
+     * 查看单个报修单的详情（学生和管理员都能调用）
+     * @param id
+     * @return
+     */
     @GetMapping("/detail")
     public Result detail(@RequestParam Integer id){
         return repairRecordService.detail(id);
     }
 
-    //修改报修单状态
+    /**
+     * 修改报修单状态
+     * @param status
+     * @param id
+     * @return
+     */
     @PutMapping("/updateStatus")
     public Result updateStatus(@RequestParam Integer status,@RequestParam Integer id){
         return repairRecordService.updateStatus(status,id);
