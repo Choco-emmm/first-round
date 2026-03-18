@@ -1,5 +1,6 @@
 package com.dems.service.impl;
 
+import com.dems.enums.UserRole;
 import com.dems.mapper.UserMapper;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
@@ -34,30 +35,25 @@ public class UserServiceImpl implements UserService {
         if(userId==null||role==null||user.getPassword()==null||user.getUsername()==null){
             return Result.error("信息填写不完整");
         }
-        //验证角色是否正确
-        if(role!=1&&role!=2){
-            return Result.error("角色填写错误");
+        //验证角色是否正确（使用枚举类）
+        UserRole userRole = UserRole.getUserRole(role);
+        if(userRole==null){
+            return Result.error("不存在这个角色");
         }
-        //验证工号格式
-        if(role==1){
-            if(!userUtil.checkUserId(userId,STU_REGEX)){
-                return Result.error("学号格式错误");
-            };
-        }else {
-            if(!userUtil.checkUserId(userId,ADMIN_REGEX)){
-                return Result.error("工号格式错误");
-            };
+        //验证工号格式（使用枚举类）
+        if(!userUtil.checkUserId(userId,userRole.getIdRegex())){
+            return Result.error(userRole.getErrorMsg());
         }
         //检查userId是否已存在
         User u = userMapper.selectUserById(user.getUserId());
         if (u!=null){
             return Result.error("工号已存在！");
         }
-        //插入用户
-        userMapper.insertUser(user);
         //设置时间
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
+        //插入用户
+        userMapper.insertUser(user);
         return Result.success();
     }
 
