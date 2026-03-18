@@ -98,7 +98,7 @@ public class UserController {
             u.setPassword(uu.getPassword());
             u.setUpdateTime(uu.getUpdateTime());
             session.setAttribute("user",u);
-            //获得身份，根据身份决定跳转的url
+            //获得身份，根据身份决定跳转的页面
             Integer role = u.getRole();
             if(role==1){
                 //素学生
