@@ -19,7 +19,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/User",
-                "description": ""
+                "description": "内有userId和password"
               }
             }
           }
@@ -31,7 +31,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -52,7 +52,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/User",
-                "description": ""
+                "description": "内含userId,password,role,username"
               }
             }
           }
@@ -64,7 +64,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -73,9 +73,9 @@
         "security": []
       }
     },
-    "/user/bind": {
+    "/user/student/bind": {
       "put": {
-        "summary": "初次登录，绑定宿舍楼号和房号",
+        "summary": "学生初次登录，绑定宿舍楼号和房号",
         "deprecated": false,
         "description": "",
         "tags": [],
@@ -85,7 +85,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/User",
-                "description": ""
+                "description": "内有楼号和房号"
               }
             }
           }
@@ -97,7 +97,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -118,7 +118,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/User",
-                "description": ""
+                "description": "里面只有 password"
               }
             }
           }
@@ -130,7 +130,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -153,7 +153,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -162,7 +162,7 @@
         "security": []
       }
     },
-    "/repairRecord/create": {
+    "/repairRecord/student/create": {
       "post": {
         "summary": "学生创建报修单",
         "deprecated": false,
@@ -174,7 +174,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RepairRecord",
-                "description": ""
+                "description": "内含stuName，buildingId，roomId，type,detail"
               }
             }
           }
@@ -186,7 +186,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -195,7 +195,7 @@
         "security": []
       }
     },
-    "/repairRecord/listById": {
+    "/repairRecord/student/listById": {
       "get": {
         "summary": "学生查看自己的报修记录",
         "deprecated": false,
@@ -228,7 +228,7 @@
           {
             "name": "ids",
             "in": "query",
-            "description": "",
+            "description": "要删除的报修单的id（路径参数）",
             "required": true,
             "schema": {
               "type": "array",
@@ -245,7 +245,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -254,7 +254,7 @@
         "security": []
       }
     },
-    "/repairRecord/list": {
+    "/repairRecord/admin/list": {
       "get": {
         "summary": "管理员查询所有报修单（支持按学号，姓名（姓名可以模糊查询），楼号，房号，类型，状态来查询）",
         "deprecated": false,
@@ -266,7 +266,7 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RepairRecord",
-                "description": ""
+                "description": "内含查询条件"
               }
             }
           }
@@ -278,7 +278,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -297,7 +297,7 @@
           {
             "name": "id",
             "in": "query",
-            "description": "",
+            "description": "要查的报修单的id",
             "required": true,
             "schema": {
               "type": "integer"
@@ -311,7 +311,7 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Result",
-                  "description": ""
+                  "description": "后端统一返回的结果！"
                 }
               }
             }
@@ -320,9 +320,9 @@
         "security": []
       }
     },
-    "/repairRecord/updateStatus": {
+    "/repairRecord/admin/updateStatus": {
       "put": {
-        "summary": "修改报修单状态",
+        "summary": "管理员修改报修单状态",
         "deprecated": false,
         "description": "",
         "tags": [],
