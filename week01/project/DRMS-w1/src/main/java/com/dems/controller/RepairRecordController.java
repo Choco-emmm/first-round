@@ -4,6 +4,7 @@ import com.dems.pojo.RepairRecord;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.RepairRecordService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +19,14 @@ public class RepairRecordController {
 
     /**
      * 学生创建报修单
-     * @param rr
-     * @param session
-     * @return
+     * @param rr 内含stuName，buildingId，roomId，type,detail
      */
-    @PostMapping("/create")
-    public Result createRepairRecord(@RequestBody RepairRecord rr, HttpSession  session){
-        //从session中获取user
-        User user = (User) session.getAttribute("user");
-        //调用service的创建方法
-       return repairRecordService.create(rr, user);
+    @PostMapping("/student/create")
+    public Result createRepairRecord(@RequestBody RepairRecord rr, HttpServletRequest request){
+        //获取token，把token和rr传到Service
+        String token = request.getHeader("token");
+        repairRecordService.create(rr, token);
+        return Result.success();
     }
 
     /**
@@ -36,16 +35,18 @@ public class RepairRecordController {
      * @param session
      * @return
      */
-    @GetMapping("/listById")
-    public Result listById(HttpSession session){
-        User user = (User) session.getAttribute("user");
-        return repairRecordService.listById(user.getUserId());
+    @GetMapping("/student/listById")
+    public Result listById(HttpServletRequest request){
+        //获取token，把token和rr传到Service
+        String token = request.getHeader("token");
+        //将token传入Service
+        List<RepairRecord> rr = repairRecordService.listById(token);
+        return Result.success(rr);
     }
 
     /**
      * 批量删除报修单（学生和管理员都能调用）
-     * @param ids
-     * @return
+     * @param ids 要删除的报修单的id（路径参数）
      */
     @DeleteMapping("/delete")
     public Result delete(@RequestParam List<Integer> ids){
@@ -56,39 +57,40 @@ public class RepairRecordController {
          *  所以删除的方法都是通用的
          */
         //通过报修单id来批量删除
-        return repairRecordService.delete(ids);
+        repairRecordService.delete(ids);
+        return Result.success();
     }
 
     /**
      * 管理员查询所有报修单（支持按学号，姓名（姓名可以模糊查询），楼号，房号，类型，状态来查询）
      * 不带详情信息，防止到时候页面卡顿
-     * @param repairRecord
-     * @return
+     * @param repairRecord 内含查询条件
      */
-    @GetMapping("/list")
+    @GetMapping("/admin/list")
     public Result list(@RequestBody(required = false) RepairRecord repairRecord){
-        return repairRecordService.list(repairRecord);
+        return Result.success(repairRecordService.list(repairRecord));
     }
 
     /**
      * 查看单个报修单的详情（学生和管理员都能调用）
-     * @param id
-     * @return
+     * @param id 要查的报修单的id
      */
     @GetMapping("/detail")
     public Result detail(@RequestParam Integer id){
-        return repairRecordService.detail(id);
+        RepairRecord rr = repairRecordService.detail(id);
+        return Result.success(rr);
     }
 
     /**
-     * 修改报修单状态
+     * 管理员修改报修单状态
      * @param status
      * @param id
      * @return
      */
-    @PutMapping("/updateStatus")
+    @PutMapping("/admin/updateStatus")
     public Result updateStatus(@RequestParam Integer status,@RequestParam Integer id){
-        return repairRecordService.updateStatus(status,id);
+        repairRecordService.updateStatus(status,id);
+        return Result.success();
     }
 
 }

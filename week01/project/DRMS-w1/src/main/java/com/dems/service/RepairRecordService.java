@@ -7,16 +7,15 @@ import com.dems.pojo.User;
 import java.util.List;
 
 public interface RepairRecordService {
-    Result create(RepairRecord rr, User user);
+    void create(RepairRecord rr, String token);
 
-    Result listById(String userId);
+    List<RepairRecord> listById(String userId);
 
-    Result delete(List<Integer> ids);
+    void delete(List<Integer> ids);
 
-    Result list(RepairRecord repairRecord);
+    List<RepairRecord> list(RepairRecord repairRecord);
 
-    Result detail(Integer id);
+    RepairRecord detail(Integer id);
 
-
-    Result updateStatus(Integer status, Integer id);
+    void updateStatus(Integer status, Integer id);
 }

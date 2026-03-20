@@ -1,14 +1,17 @@
 package com.dems.service;
 
+import com.dems.pojo.LoginInfo;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 
 public interface UserService {
-    User login(String userId, String password);
+    LoginInfo login(String userId, String password);
 
-    Result register(User user);
+    void register(User user);
 
-    Result bind(Integer buildingId, String roomId, String userId);
+    void bind(Integer buildingId, String roomId, String token);
 
-    Result updatePass(String password, String userId);
+    void updatePass(String password, String token);
+
+    LoginInfo info(String token);
 }
