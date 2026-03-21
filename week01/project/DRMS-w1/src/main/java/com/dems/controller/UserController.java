@@ -5,11 +5,8 @@ import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.http.HttpRequest;
 
 @RestController
 @RequestMapping("/user")
@@ -62,10 +59,8 @@ public class UserController {
      * @param user 内有楼号和房号
      */
     @PutMapping("/student/bind")
-    public Result bind(@RequestBody User user, HttpServletRequest httpRequest) {
-        //从Request中获取token，把user和token传入Service层
-        String token = httpRequest.getHeader("token");
-        userService.bind(user.getBuildingId(), user.getRoomId(), token);
+    public Result bind(@RequestBody User user) {
+        userService.bind(user.getBuildingId(), user.getRoomId());
         return Result.success();
     }
 
@@ -74,10 +69,8 @@ public class UserController {
      * @param user 里面只有 password
      */
     @PutMapping("/updatePass")
-    public Result updatePass(@RequestBody User user, HttpServletRequest httpRequest) {
-        //从token中获得userId，将user和token一起传入service层
-        String token = httpRequest.getHeader("token");
-        userService.updatePass(user.getPassword(), token);
+    public Result updatePass(@RequestBody User user) {
+        userService.updatePass(user.getPassword());
         //返回结果
         return Result.success();
     }
@@ -86,11 +79,9 @@ public class UserController {
      * 查看自己的基本信息
      */
     @GetMapping("/info")
-    public Result info(HttpServletRequest httpRequest) {
-        //从Request中获取token，传入Service层
-        String token = httpRequest.getHeader("token");
+    public Result info() {
         //获取用户信息
-        LoginInfo loginInfo = userService.info(token);
+        LoginInfo loginInfo = userService.info();
         //返回用户信息给前端
         return Result.success(loginInfo);
     }

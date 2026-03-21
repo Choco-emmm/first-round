@@ -9,9 +9,9 @@ public interface UserService {
 
     void register(User user);
 
-    void bind(Integer buildingId, String roomId, String token);
+    void bind(Integer buildingId, String roomId);
 
-    void updatePass(String password, String token);
+    void updatePass(String password);
 
-    LoginInfo info(String token);
+    LoginInfo info();
 }

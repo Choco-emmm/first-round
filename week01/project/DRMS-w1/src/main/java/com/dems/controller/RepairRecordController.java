@@ -22,40 +22,28 @@ public class RepairRecordController {
      * @param rr 内含stuName，buildingId，roomId，type,detail
      */
     @PostMapping("/student/create")
-    public Result createRepairRecord(@RequestBody RepairRecord rr, HttpServletRequest request){
-        //获取token，把token和rr传到Service
-        String token = request.getHeader("token");
-        repairRecordService.create(rr, token);
+    public Result createRepairRecord(@RequestBody RepairRecord rr){
+        repairRecordService.create(rr);
         return Result.success();
     }
 
     /**
      * 学生查看自己的报修记录
      * 不带详情信息，防止到时候页面卡顿
-     * @param session
-     * @return
      */
     @GetMapping("/student/listById")
-    public Result listById(HttpServletRequest request){
-        //获取token，把token和rr传到Service
-        String token = request.getHeader("token");
-        //将token传入Service
-        List<RepairRecord> rr = repairRecordService.listById(token);
+    public Result listById(){
+        List<RepairRecord> rr = repairRecordService.listById();
         return Result.success(rr);
     }
 
     /**
      * 批量删除报修单（学生和管理员都能调用）
+     * 这样太危险了，删除前一定要做身份校验，如果是学生就只能删自己的，管理员可以删全部，之后改！！！！！
      * @param ids 要删除的报修单的id（路径参数）
      */
     @DeleteMapping("/delete")
     public Result delete(@RequestParam List<Integer> ids){
-        /**
-         *  我的想法是，到时候无论是学生还是管理员在页面上看到的都是自己能操作的报修单
-         *  到时候选中的时候就会给服务端发送选中的报修单相应的ids
-         *  然后进行删除就行
-         *  所以删除的方法都是通用的
-         */
         //通过报修单id来批量删除
         repairRecordService.delete(ids);
         return Result.success();
@@ -83,9 +71,8 @@ public class RepairRecordController {
 
     /**
      * 管理员修改报修单状态
-     * @param status
-     * @param id
-     * @return
+     * @param status 状态
+     * @param id 报修单id
      */
     @PutMapping("/admin/updateStatus")
     public Result updateStatus(@RequestParam Integer status,@RequestParam Integer id){

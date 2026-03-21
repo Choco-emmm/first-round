@@ -6,6 +6,7 @@ import com.dems.pojo.RepairRecord;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.RepairRecordService;
+import com.dems.utils.UserContext;
 import com.dems.utils.jwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,13 @@ public class RepairRecordServiceImpl implements RepairRecordService {
     private static final Integer STATUS_PENDING = 1;
 
     @Override
-    public void create(RepairRecord rr, String token) {
+    public void create(RepairRecord rr) {
         //先判断rr中的一些数据是否为空
         if(rr.getStuName()==null||rr.getBuildingId()==null||rr.getRoomId()==null||rr.getType()==null||rr.getDetail()==null){
            throw new RuntimeException("数据不能为空！");
         }
         //通过token获取用户信息
-        String userId = jwtUtil.getUserIdFromJwt(token);
+        String userId = UserContext.getUserId();
 
         rr.setStuId(userId);
         //设置一些默认值
@@ -41,8 +42,8 @@ public class RepairRecordServiceImpl implements RepairRecordService {
     }
 
     @Override
-    public List<RepairRecord> listById(String token) {
-        String userId = jwtUtil.getUserIdFromJwt(token);
+    public List<RepairRecord> listById() {
+        String userId = UserContext.getUserId();
         //通过userId来获得报修单数据
         return repairRecordMapper.selectByUserId(userId);
 
@@ -57,7 +58,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
 
     @Override
     public List<RepairRecord> list(RepairRecord repairRecord) {
-        //按条件查询数据
+        //管理员按条件查询数据
         return  repairRecordMapper.selectAll(repairRecord);
     }
 

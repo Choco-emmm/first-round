@@ -7,9 +7,9 @@ import com.dems.pojo.User;
 import java.util.List;
 
 public interface RepairRecordService {
-    void create(RepairRecord rr, String token);
+    void create(RepairRecord rr);
 
-    List<RepairRecord> listById(String userId);
+    List<RepairRecord> listById();
 
     void delete(List<Integer> ids);
 

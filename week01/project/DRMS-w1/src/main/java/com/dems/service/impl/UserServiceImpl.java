@@ -6,6 +6,7 @@ import com.dems.pojo.LoginInfo;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.UserService;
+import com.dems.utils.UserContext;
 import com.dems.utils.jwtUtil;
 import com.dems.utils.userUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +73,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void bind(Integer buildingId, String roomId, String token) {
+    public void bind(Integer buildingId, String roomId) {
         User user=new User();
         if(roomId==null||buildingId==null){
             throw new RuntimeException("请填写完整信息");
         }
-        String userId =jwtUtil.getUserIdFromJwt(token);
+        String userId=UserContext.getUserId();
         user.setUserId(userId);
         user.setBuildingId(buildingId);
         user.setRoomId(roomId);
@@ -88,22 +89,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public  void updatePass(String password, String token) {
-       //从token中获取用户id
-        String userId =jwtUtil.getUserIdFromJwt(token);
-        //根据id修改密码
-        User user =new User();
+    public  void updatePass(String password) {
+        if(password==null|| password.isEmpty()){
+            throw new RuntimeException("密码不能为空");
+        }
+       //获取用户id
+        String userId = UserContext.getUserId();
+        //获取原用户数据，看密码跟这个password是否一致
+        User user = userMapper.selectUserById(userId);
+        if(user.getPassword().equals( password)){
+            throw new RuntimeException("新密码不能与原密码一致");
+        }
+        //修改密码
         user.setPassword(password);
-        user.setUserId(userId);
         //设置更新时间
         user.setUpdateTime(LocalDateTime.now());
         userMapper.updatePassById(user);
     }
 
     @Override
-    public LoginInfo info(String token) {
-        //解析token，获取用户信息，到数据库去查用户
-        String userId =jwtUtil.getUserIdFromJwt(token);
+    public LoginInfo info() {
+        //获取id，然后带着id查
+        String userId =UserContext.getUserId();
         User user = userMapper.selectUserById(userId);
         //选择需要的信息进行组装（token不需要再返回去了，用户端已经存在本地了）
         return new LoginInfo(user.getUserId(),user.getUsername(),null,user.getRole(),user.getBuildingId(),user.getRoomId(),null);
