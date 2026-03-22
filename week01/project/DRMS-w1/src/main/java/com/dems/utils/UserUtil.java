@@ -1,6 +1,6 @@
 package com.dems.utils;
 
-public class userUtil {
+public class UserUtil {
     /**
      * 检查用户工号是否符合正则
      * @param userId

@@ -1,8 +1,8 @@
 package com.dems.Interceptor;
 
 
-import com.dems.enums.UserRole;
-import com.dems.utils.jwtUtil;
+import com.dems.utils.Constant;
+import com.dems.utils.JwtUtil;
 import com.dems.utils.UserContext;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         //5.如果令牌存在，校验令牌，如果校验失败，也返回401
         //只要无法解析就是非法令牌，直接处理错误就行
         try {
-            Claims claims = jwtUtil.parseJwt(token);
+            Claims claims = JwtUtil.parseJwt(token);
             //从令牌中获取claims并存入threadlocal以便之后的方法取用
             UserContext.setData(claims);
         } catch (Exception e) {
@@ -48,13 +48,13 @@ public class TokenInterceptor implements HandlerInterceptor {
         String path = request.getRequestURI();
         Integer role = UserContext.getUserRole();
         if(path.contains("/student")){
-            if(!role.equals(UserRole.STUDENT.getCode() )){
+            if(!role.equals(Constant.STU_ROLE)){
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 System.out.println("用户不是学生");
                 return false;
             }
         }else if(path.contains("/admin")){
-            if(!role.equals(UserRole.ADMIN.getCode())){
+            if(!role.equals(Constant.ADMIN_ROLE)){
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 System.out.println("用户不是管理员");
                 return false;

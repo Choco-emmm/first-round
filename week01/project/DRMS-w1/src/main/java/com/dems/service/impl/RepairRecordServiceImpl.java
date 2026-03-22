@@ -1,19 +1,14 @@
 package com.dems.service.impl;
 
 import com.dems.mapper.RepairRecordMapper;
-import com.dems.mapper.UserMapper;
 import com.dems.pojo.RepairRecord;
-import com.dems.pojo.Result;
-import com.dems.pojo.User;
 import com.dems.service.RepairRecordService;
 import com.dems.utils.UserContext;
-import com.dems.utils.jwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

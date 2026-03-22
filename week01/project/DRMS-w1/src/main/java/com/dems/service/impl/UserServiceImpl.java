@@ -1,14 +1,13 @@
 package com.dems.service.impl;
 
-import com.dems.enums.UserRole;
 import com.dems.mapper.UserMapper;
 import com.dems.pojo.LoginInfo;
-import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.UserService;
+import com.dems.utils.Constant;
 import com.dems.utils.UserContext;
-import com.dems.utils.jwtUtil;
-import com.dems.utils.userUtil;
+import com.dems.utils.JwtUtil;
+import com.dems.utils.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
-    public static final String STU_REGEX = "^(3125|3225)\\d{6}$";//学生工号的正则
-    public static final String ADMIN_REGEX = "^0025\\d{6}$";//管理员工号的正则
+
    @Autowired
     private UserMapper userMapper;
     @Override
@@ -30,41 +27,62 @@ public class UserServiceImpl implements UserService {
         //调用mapper的查询
         user=userMapper.selectUserByIdPass(userId,password);
         if(user!=null){
+            LoginInfo loginInfo=null;
             String username = user.getUsername();
+            Integer role = user.getRole();
             //生成令牌，封装到LoginInfo
             Map<String, Object> map=new HashMap<>();
             map.put("userId",userId);
             map.put("username",username);
-            map.put("role",user.getRole());
-            String token = jwtUtil.generateJwtToken(map);
-            return new LoginInfo(userId,username,token,user.getRole(),user.getBuildingId(),user.getRoomId(),null);
+            map.put("role",role);
+            //生成令牌
+            String token = JwtUtil.generateJwtToken(map);
+            loginInfo=new LoginInfo(userId,username,token,user.getRole(),user.getBuildingId(),user.getRoomId(),null);
+            //看是啥角色
+            if(role.equals(Constant.STU_ROLE)){
+            //是学生
+                if(user.getBuildingId()==null||user.getRoomId()==null){
+                    //没绑宿舍
+                    loginInfo.setNextStep(Constant.STEP_BIND_ROOM);
+                }else {
+                    //已绑定宿舍
+                    loginInfo.setNextStep(Constant.STEP_STU_HOME);
+                }
+            }else {
+                //是管理员
+                loginInfo.setNextStep(Constant.STEP_ADMIN_HOME);
+            }
+            return loginInfo;
         }
-        return null;
+        throw new RuntimeException("用户名或密码错误");
     }
 
     @Transactional
     @Override
     public void register(User user) {
         String userId = user.getUserId();
-        Integer role = user.getRole();
         //验证有无输入其他信息
-        if(userId==null||role==null||user.getPassword()==null||user.getUsername()==null){
+        if(userId==null||user.getPassword()==null||user.getUsername()==null){
             throw new RuntimeException("请填写完整信息");
         }
-        //验证角色是否正确（使用枚举类）
-        UserRole userRole = UserRole.getUserRole(role);
-        if(userRole==null){
-            throw new RuntimeException("用户角色错误");
+
+        //看传入的账号是学生格式还是管理员格式（
+        if(UserUtil.checkUserId(userId, Constant.STU_REGEX)){
+            //是学生
+            user.setRole(Constant.STU_ROLE);
+        }else if(UserUtil.checkUserId(userId, Constant.ADMIN_REGEX)){
+            //是管理员
+            user.setRole(Constant.ADMIN_ROLE);
+        }else {
+            throw new RuntimeException("用户格式错误");
         }
-        //验证工号格式（使用枚举类）
-        if(!userUtil.checkUserId(userId,userRole.getIdRegex())){
-            throw new RuntimeException("用户角色错误");
-        }
+
         //检查userId是否已存在
         User u = userMapper.selectUserById(user.getUserId());
         if (u!=null){
             throw new RuntimeException("用户已存在");
         }
+
         //设置时间
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
@@ -112,7 +130,7 @@ public class UserServiceImpl implements UserService {
         //获取id，然后带着id查
         String userId =UserContext.getUserId();
         User user = userMapper.selectUserById(userId);
-        //选择需要的信息进行组装（token不需要再返回去了，用户端已经存在本地了）
+        //选择需要的信息进行组装（token不需要再返回去了，用户端已经存在本地了，也不用下一步了）
         return new LoginInfo(user.getUserId(),user.getUsername(),null,user.getRole(),user.getBuildingId(),user.getRoomId(),null);
     }
 }

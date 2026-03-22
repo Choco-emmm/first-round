@@ -1,10 +1,14 @@
 package com.dems.pojo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RepairRecord {
     private Integer id;//报修单id
     private String stuId;//报修学生的工号

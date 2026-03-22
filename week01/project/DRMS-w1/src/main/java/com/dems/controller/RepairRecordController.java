@@ -21,7 +21,7 @@ public class RepairRecordController {
      * 学生创建报修单
      * @param rr 内含stuName，buildingId，roomId，type,detail
      */
-    @PostMapping("/student/create")
+    @PostMapping("/student")
     public Result createRepairRecord(@RequestBody RepairRecord rr){
         repairRecordService.create(rr);
         return Result.success();
@@ -31,7 +31,7 @@ public class RepairRecordController {
      * 学生查看自己的报修记录
      * 不带详情信息，防止到时候页面卡顿
      */
-    @GetMapping("/student/listById")
+    @GetMapping("/student")
     public Result listById(){
         List<RepairRecord> rr = repairRecordService.listById();
         return Result.success(rr);
@@ -39,10 +39,9 @@ public class RepairRecordController {
 
     /**
      * 批量删除报修单（学生和管理员都能调用）
-     * 这样太危险了，删除前一定要做身份校验，如果是学生就只能删自己的，管理员可以删全部，之后改！！！！！
      * @param ids 要删除的报修单的id（路径参数）
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping()
     public Result delete(@RequestParam List<Integer> ids){
         //通过报修单id来批量删除
         repairRecordService.delete(ids);
@@ -54,7 +53,7 @@ public class RepairRecordController {
      * 不带详情信息，防止到时候页面卡顿
      * @param repairRecord 内含查询条件
      */
-    @GetMapping("/admin/list")
+    @GetMapping("/admin")
     public Result list(@RequestBody(required = false) RepairRecord repairRecord){
         return Result.success(repairRecordService.list(repairRecord));
     }
@@ -63,7 +62,7 @@ public class RepairRecordController {
      * 查看单个报修单的详情（学生和管理员都能调用）
      * @param id 要查的报修单的id
      */
-    @GetMapping("/detail")
+    @GetMapping()
     public Result detail(@RequestParam Integer id){
         RepairRecord rr = repairRecordService.detail(id);
         return Result.success(rr);
@@ -74,7 +73,7 @@ public class RepairRecordController {
      * @param status 状态
      * @param id 报修单id
      */
-    @PutMapping("/admin/updateStatus")
+    @PutMapping("/admin")
     public Result updateStatus(@RequestParam Integer status,@RequestParam Integer id){
         repairRecordService.updateStatus(status,id);
         return Result.success();

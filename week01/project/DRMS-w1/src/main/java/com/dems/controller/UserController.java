@@ -4,6 +4,7 @@ import com.dems.pojo.LoginInfo;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.UserService;
+import com.dems.utils.Constant;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,30 +24,12 @@ public class UserController {
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
         LoginInfo loginInfo = userService.login(user.getUserId(), user.getPassword());
-        if (loginInfo != null) {
-            Integer role = loginInfo.getRole();
-            //素学生
-            if (role == 1) {
-                //再判断有没有绑定宿舍
-                if (loginInfo.getBuildingId() == null || loginInfo.getRoomId() == null) {
-                    loginInfo.setUrl("学生绑定宿舍页面的url");
-                } else {
-                    //已绑定宿舍
-                    loginInfo.setUrl("学生操作页面的url");
-                }
-            } else {
-                //素管理员
-                loginInfo.setUrl("管理员操作页面的url");
-            }
             return Result.success(loginInfo);
-        } else {
-            return Result.error("工号或密码错误");
-        }
     }
 
     /**
      * 注册
-     * @param user 内含userId,password,role,username
+     * @param user 内含userId,password,username
      */
     @PostMapping("/register")
     public Result register(@RequestBody User user) {
@@ -58,7 +41,7 @@ public class UserController {
      * 学生初次登录，绑定宿舍楼号和房号
      * @param user 内有楼号和房号
      */
-    @PutMapping("/student/bind")
+    @PutMapping("/student")
     public Result bind(@RequestBody User user) {
         userService.bind(user.getBuildingId(), user.getRoomId());
         return Result.success();
@@ -68,7 +51,7 @@ public class UserController {
      * 修改密码
      * @param user 里面只有 password
      */
-    @PutMapping("/updatePass")
+    @PutMapping()
     public Result updatePass(@RequestBody User user) {
         userService.updatePass(user.getPassword());
         //返回结果
@@ -78,7 +61,7 @@ public class UserController {
     /**
      * 查看自己的基本信息
      */
-    @GetMapping("/info")
+    @GetMapping()
     public Result info() {
         //获取用户信息
         LoginInfo loginInfo = userService.info();

@@ -9,7 +9,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
-public class jwtUtil {
+public class JwtUtil {
     public static final String JWT_SECRET = "dems-jwt-secret-key-for-hmac-sha256-algorithm";//密钥
     public static final long JWT_EXPIRATION = 3600*1000;//过期时间
     public static final Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));

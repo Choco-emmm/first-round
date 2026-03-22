@@ -14,5 +14,5 @@ public class LoginInfo {
     private Integer role;
     private Integer buildingId;
     private String roomId;
-    private String url;
+    private String nextStep;
 }

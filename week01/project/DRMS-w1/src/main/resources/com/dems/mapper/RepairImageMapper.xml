@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dems.mapper.RepairImageMapper">
+    <!--获取自增主键-->
+    <insert id="insertRepairImage" useGeneratedKeys="true" keyProperty="id">
+        insert into repair_image(repair_id,image_url,create_time) values(#{repairId},#{imageUrl},#{createTime})
+    </insert>
+</mapper>
