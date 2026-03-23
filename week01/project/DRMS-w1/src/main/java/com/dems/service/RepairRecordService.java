@@ -1,6 +1,7 @@
 package com.dems.service;
 
 import com.dems.pojo.RepairRecord;
+import com.dems.pojo.RepairRecordDetail;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 
@@ -15,7 +16,7 @@ public interface RepairRecordService {
 
     List<RepairRecord> list(RepairRecord repairRecord);
 
-    RepairRecord detail(Integer id);
+    RepairRecordDetail detail(Integer id);
 
     void updateStatus(Integer status, Integer id);
 }

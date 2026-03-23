@@ -18,7 +18,6 @@ public class JwtUtil {
         ;
         return Jwts.builder()
                 .addClaims(claims)
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
                 .signWith(key)
                 .compact();
     }
@@ -30,22 +29,4 @@ public class JwtUtil {
                 .parseClaimsJws(jwt)
                 .getBody();
     }
-
-    /**
-     * 从token中获取用户id（
-     */
-    public static String getUserIdFromJwt(String jwt){
-        //在访问资源的时候已经验证令牌有效性了所以这里直接使用parseJwt而不是parserBuilder这种麻烦的东东
-       return (String) parseJwt(jwt).get("userId");
-    }
-
-    /**
-     * 从token中获取用户身份
-     */
-    public static Integer getUserRoleFromJwt(String jwt){
-        //同上
-        return (Integer) parseJwt(jwt).get("role");
-    }
-
-
 }

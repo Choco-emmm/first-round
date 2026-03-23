@@ -1,6 +1,7 @@
 package com.dems.controller;
 
 import com.dems.pojo.RepairRecord;
+import com.dems.pojo.RepairRecordDetail;
 import com.dems.pojo.Result;
 import com.dems.pojo.User;
 import com.dems.service.RepairRecordService;
@@ -19,7 +20,7 @@ public class RepairRecordController {
 
     /**
      * 学生创建报修单
-     * @param rr 内含stuName，buildingId，roomId，type,detail
+     * @param rr 内含stuName，buildingId，roomId，type,detail,imgIds（只有这个可为空）
      */
     @PostMapping("/student")
     public Result createRepairRecord(@RequestBody RepairRecord rr){
@@ -64,8 +65,8 @@ public class RepairRecordController {
      */
     @GetMapping()
     public Result detail(@RequestParam Integer id){
-        RepairRecord rr = repairRecordService.detail(id);
-        return Result.success(rr);
+        RepairRecordDetail rrd = repairRecordService.detail(id);
+        return Result.success(rrd);
     }
 
     /**
