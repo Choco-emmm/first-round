@@ -76,7 +76,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
             repairRecordMapper.batchDelete(ids);
             log.info("批量删除报修单成功，IDs: {}", ids);
         } catch (Exception e) {
-            log.error("批量删除报修单失败，IDs: {}, 错误: {}", ids, e.getMessage(), e);
+            log.error("批量删除报修单失败，IDs: {}, 错误: {}", ids, e.getMessage());
             throw e; // 保持原有事务回滚行为
         }
     }

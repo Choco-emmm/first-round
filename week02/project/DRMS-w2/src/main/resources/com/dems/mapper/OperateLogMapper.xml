@@ -8,4 +8,7 @@
             insert into operate_log(operate_user_id,operate_time,class_name,method_name,method_params,return_value,cost_time,exception_msg)
             values(#{operateUserId},#{operateTime},#{className},#{methodName},#{methodParams},#{returnValue},#{costTime},#{exceptionMsg})
     </insert>
+    <select id="selectAll" resultType="com.dems.pojo.OperateLog">
+        select * from operate_log
+    </select>
 </mapper>

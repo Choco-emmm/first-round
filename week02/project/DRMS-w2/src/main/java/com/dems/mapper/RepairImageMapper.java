@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface RepairImageMapper {
-    public void insertRepairImage(RepairImage repairImage) ;
+    void insertRepairImage(RepairImage repairImage) ;
 
     void batchUpdate(Integer repairId, List<Integer> imgIds);
 

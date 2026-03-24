@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/repairRecord")
 public class RepairRecordController {
     @Autowired
-    RepairRecordService repairRecordService;
+    private  RepairRecordService repairRecordService;
 
     /**
      * 学生创建报修单

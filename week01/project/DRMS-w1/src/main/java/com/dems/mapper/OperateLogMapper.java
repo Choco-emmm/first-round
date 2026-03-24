@@ -7,4 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface OperateLogMapper {
     //插入操作日志
     void insertLog(OperateLog operateLog);
+
+    void selectAll();
 }

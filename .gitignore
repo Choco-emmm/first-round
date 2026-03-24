@@ -22,6 +22,8 @@ build/
 gradle-app.setting
 gradle-wrapper.jar
 gradle-wrapper.properties
+#忽略week01文件夹下的更改
+week01/
 
 ### 三、IDE配置相关 ###
 ## IntelliJ IDEA
