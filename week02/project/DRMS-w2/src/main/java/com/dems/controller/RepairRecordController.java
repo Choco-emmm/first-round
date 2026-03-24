@@ -53,7 +53,7 @@ public class RepairRecordController {
      * @param repairRecord 内含查询条件
      */
     @GetMapping("/admin")
-    public Result list(@RequestBody(required = false) RepairRecord repairRecord){
+    public Result list(RepairRecord repairRecord){
         return Result.success(repairRecordService.list(repairRecord));
     }
 

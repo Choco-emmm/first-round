@@ -24,8 +24,14 @@
       <el-descriptions :column="1" border>
         <el-descriptions-item label="姓名">{{ userDetail.username }}</el-descriptions-item>
         <el-descriptions-item label="工号/学号">{{ userDetail.userId }}</el-descriptions-item>
-        <el-descriptions-item label="角色">{{ userDetail.role === 'ADMIN' ? '管理员' : '学生' }}</el-descriptions-item>
-        <el-descriptions-item v-if="userDetail.role !== 'ADMIN'" label="宿舍">
+        
+        <el-descriptions-item label="角色">
+          <el-tag :type="userDetail.role === 2 ? 'warning' : 'success'">
+            {{ userDetail.role === 2 ? '管理员' : '学生' }}
+          </el-tag>
+        </el-descriptions-item>
+        
+        <el-descriptions-item v-if="userDetail.role === 1" label="宿舍">
           {{ userDetail.buildingId }} 栋 {{ userDetail.roomId }} 室
         </el-descriptions-item>
       </el-descriptions>

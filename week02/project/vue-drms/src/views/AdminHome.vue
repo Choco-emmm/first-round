@@ -5,16 +5,45 @@
       <el-tabs type="border-card">
         <el-tab-pane label="报修单管理">
           <el-form :inline="true" :model="searchForm" style="margin-bottom: 15px;">
-            <el-form-item label="姓名"><el-input v-model="searchForm.stuName" placeholder="模糊查询" clearable /></el-form-item>
-            <el-form-item label="状态">
-              <el-select v-model="searchForm.status" clearable placeholder="全部状态">
-                <el-option label="待处理" :value="0" />
-                <el-option label="处理中" :value="1" />
-                <el-option label="已完成" :value="2" />
+            <el-form-item label="姓名">
+              <el-input 
+                v-model="searchForm.stuName" 
+                placeholder="模糊查询" 
+                clearable 
+                @input="loadRepairs"
+                @clear="loadRepairs"
+              />
+            </el-form-item>
+            
+            <el-form-item label="类型">
+              <el-select 
+                v-model="searchForm.type" 
+                clearable 
+                placeholder="全部分类" 
+                style="width: 120px;"
+                @change="loadRepairs"
+              >
+                <el-option label="水电器" :value="1" />
+                <el-option label="家具" :value="2" />
+                <el-option label="其他" :value="3" />
               </el-select>
             </el-form-item>
+            
+            <el-form-item label="状态">
+              <el-select 
+                v-model="searchForm.status" 
+                clearable 
+                placeholder="全部状态" 
+                style="width: 120px;"
+                @change="loadRepairs"
+              >
+                <el-option label="待处理" :value="1" />
+                <el-option label="处理中" :value="2" />
+                <el-option label="已完成" :value="3" />
+              </el-select>
+            </el-form-item>
+            
             <el-form-item>
-              <el-button type="primary" @click="loadRepairs">查询</el-button>
               <el-button type="danger" @click="batchDelete">批量删除</el-button>
             </el-form-item>
           </el-form>
@@ -25,18 +54,21 @@
             <el-table-column prop="stuName" label="申请人" width="100" />
             <el-table-column prop="buildingId" label="楼号" width="80" />
             <el-table-column prop="roomId" label="房号" width="80" />
-            <el-table-column prop="type" label="类型" />
+            <el-table-column label="类型">
+              <template #default="{ row }">{{ getTypeText(row.type) }}</template>
+            </el-table-column>
             <el-table-column label="状态" width="120">
               <template #default="{ row }">
                 <el-select v-model="row.status" @change="updateStatus(row.id, row.status)" size="small">
-                  <el-option label="待处理" :value="0" />
-                  <el-option label="处理中" :value="1" />
-                  <el-option label="已完成" :value="2" />
+                  <el-option label="待处理" :value="1" />
+                  <el-option label="处理中" :value="2" />
+                  <el-option label="已完成" :value="3" />
                 </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="140">
               <template #default="{ row }">
+                <el-button link type="primary" @click="handleDetail(row.id)">详情</el-button>
                 <el-button link type="danger" @click="deleteSingle(row.id)">删除</el-button>
               </template>
             </el-table-column>
@@ -46,7 +78,7 @@
         <el-tab-pane label="系统操作日志">
           <el-table :data="logList" border stripe>
             <el-table-column prop="id" label="ID" width="60" />
-            <el-table-column prop="operateUser" label="操作人" width="100" />
+            <el-table-column prop="operateUserId" label="操作人Id" width="100" />
             <el-table-column prop="className" label="类名" show-overflow-tooltip />
             <el-table-column prop="methodName" label="方法名" />
             <el-table-column prop="operateTime" label="时间" width="180"/>
@@ -54,6 +86,33 @@
           </el-table>
         </el-tab-pane>
       </el-tabs>
+
+      <el-dialog v-model="showDetailDialog" title="报修单详情" width="500px">
+        <div v-loading="detailLoading">
+          <p style="line-height: 1.6; margin-bottom: 15px; padding: 10px; background: #f5f7fa; border-radius: 4px;">
+            <strong>问题描述：</strong><br/>
+            {{ detailData.detail || '暂无详细描述' }}
+          </p>
+          
+          <div v-if="detailData.imgUrls && detailData.imgUrls.length > 0">
+            <strong>报修图片：</strong>
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+              <el-image
+                v-for="(filename, index) in detailData.imgUrls"
+                :key="index"
+                :src="getImageUrl(filename)"
+                :preview-src-list="detailData.imgUrls.map(getImageUrl)"
+                :initial-index="index"
+                fit="cover"
+                style="width: 100px; height: 100px; border-radius: 6px; border: 1px solid #eee; cursor: pointer;"
+              />
+            </div>
+          </div>
+          <div v-else style="color: #999; margin-top: 10px;">
+            <strong>报修图片：</strong>暂无上传图片
+          </div>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -67,12 +126,24 @@ import NavBar from '@/components/NavBar.vue'
 const repairList = ref([])
 const logList = ref([])
 const selectedIds = ref<number[]>([])
-const searchForm = reactive({ stuName: '', status: '' })
+const searchForm = reactive({ stuName: '', type: '', status: '' })
 
-// 注意：后端的 list 接口如果是 POST，且使用 @RequestBody，要用 request.post
+const showDetailDialog = ref(false)
+const detailLoading = ref(false)
+const detailData = ref<any>({})
+
+const getTypeText = (type: number) => ({ 1: '水电器', 2: '家具', 3: '其他' }[type] || '未知')
+
+// ✨ 最新的极简版图片拼接逻辑 ✨
+const getImageUrl = (filename: string) => {
+  if (!filename) return ''
+  if (filename.startsWith('http')) return filename
+  // 直接加上后端的 /images/ 映射前缀
+  return 'http://localhost:8080/images/' + filename
+}
+
 const loadRepairs = async () => {
-  // 按照你的 Controller，应该是 GET /repairRecord/admin，但带 @RequestBody 在标准 HTTP 中是不规范的，这里假设你用 Axios 的 data 或者直接将对象作为请求体传过去
-  const res: any = await request({ url: '/repairRecord/admin', method: 'GET', data: searchForm })
+  const res: any = await request({ url: '/repairRecord/admin', method: 'GET', params: searchForm })
   if (res.code === 1) repairList.value = res.data || []
 }
 
@@ -100,6 +171,18 @@ const doDelete = (ids: string) => {
     const res: any = await request.delete(`/repairRecord?ids=${ids}`)
     if (res.code === 1) { ElMessage.success('删除成功'); loadRepairs() }
   }).catch(() => {})
+}
+
+const handleDetail = async (id: number) => {
+  showDetailDialog.value = true
+  detailLoading.value = true
+  try {
+    const res: any = await request.get(`/repairRecord?id=${id}`)
+    if (res.code === 1) detailData.value = res.data || {}
+    else ElMessage.error(res.msg || '获取详情失败')
+  } finally {
+    detailLoading.value = false
+  }
 }
 
 onMounted(() => { loadRepairs(); loadLogs() })

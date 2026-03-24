@@ -7,11 +7,13 @@ import com.dems.utils.UserContext;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+@Slf4j
 @Component
 public class TokenInterceptor implements HandlerInterceptor {
     @Override
@@ -26,7 +28,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         //4.判断token是否存在，若不存在说明用户没有登录，返回401
         if (token == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            System.out.println("用户未登录");
+            log.error("用户未登录");
             return false;
         }
 
@@ -64,7 +66,7 @@ public class TokenInterceptor implements HandlerInterceptor {
      * 清除数据
      */
     @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
         UserContext.remove();
     }
 }

@@ -48,7 +48,7 @@ public class RepairImageServiceImpl implements RepairImageService {
         }
 
         // 存到数据库（没关联repair_id版）
-        repairImage.setImageUrl(imageUrl);
+        repairImage.setImageUrl(imageName);
         repairImage.setCreateTime(LocalDateTime.now());
 
         repairImageMapper.insertRepairImage(repairImage);
