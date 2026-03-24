@@ -11,8 +11,9 @@ request.interceptors.request.use(
     config => {
         const token = localStorage.getItem('token')
         if (token) {
-            // 根据后端要求，可能是 Header: Authorization 或 custom-header
-            config.headers['Authorization'] = token
+            // 修改 request.ts 的拦截器部分
+            config.headers['token'] = token
+            // 或者你的后端叫什么名字就写什么，比如 config.headers['Authorization']
         }
         return config
     },
