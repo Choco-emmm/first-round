@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <NavBar />
-    <div style="padding: 20px; max-width: 1200px; margin: 0 auto;">
+  <NavBar />
+  <div class="page-wrapper">
+    <div style="padding: 20px; margin: 0 auto;">
       <el-tabs type="border-card">
         <el-tab-pane label="报修单管理">
           <el-form :inline="true" :model="searchForm" style="margin-bottom: 15px;">
@@ -187,3 +187,51 @@ const handleDetail = async (id: number) => {
 
 onMounted(() => { loadRepairs(); loadLogs() })
 </script>
+
+<style scoped>
+/* 整个页面的大容器，保证背景铺满 */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面主体进场动效与全宽布局 */
+.page-wrapper {
+  padding: 0 40px 24px 40px; /* 顶部0，左右40px（和导航栏对齐），底部24px */
+  flex: 1; /* 让主体内容撑满剩下的屏幕高度 */
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 高级悬浮卡片（取消原有的任何限制，让卡片自然撑满） */
+.el-card, .el-tabs {
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  width: 100%; /* 强制占据 100% 宽度 */
+}
+.el-card:hover, .el-tabs:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 表格圆角与无缝处理 */
+.el-table {
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+.el-table th.el-table__cell {
+  background-color: #f8fafc !important;
+  color: #475569;
+  font-weight: 600;
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+</style>

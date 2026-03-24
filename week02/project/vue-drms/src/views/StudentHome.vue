@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <NavBar />
-    <div style="padding: 20px; max-width: 1000px; margin: 0 auto;">
+   <NavBar />
+  <div class="page-wrapper">
+   
+    <div style="padding: 20px; margin: 0 auto;">
       <el-card>
         <template #header>
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -10,24 +11,42 @@
           </div>
         </template>
         
-        <el-table :data="tableData" border stripe>
-          <el-table-column prop="id" label="单号" width="80" />
-          <el-table-column label="类型" width="120">
-            <template #default="{ row }">{{ getTypeText(row.type) }}</template>
-          </el-table-column>
-          <el-table-column prop="buildingId" label="楼号" width="80" />
-          <el-table-column prop="roomId" label="房号" width="80" />
-          <el-table-column label="状态" width="100">
+        <el-table 
+          :data="tableData" 
+          stripe 
+          size="large"
+          style="width: 100%; border-radius: 12px; overflow: hidden;"
+          :header-cell-style="{ background: '#f8fafc', color: '#334155', fontWeight: 'bold', fontSize: '15px', height: '54px' }"
+          :row-style="{ height: '60px' }"
+        >
+          <el-table-column prop="id" label="单号" width="100" align="center" />
+          <el-table-column label="报修类型" width="140">
             <template #default="{ row }">
-              <el-tag :type="getStatusTag(row.status)">{{ getStatusText(row.status) }}</el-tag>
+              <span style="font-weight: 500; color: #475569;">{{ getTypeText(row.type) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="150" fixed="right">
+          <el-table-column prop="buildingId" label="楼号" width="100" align="center" />
+          <el-table-column prop="roomId" label="房号" width="100" align="center" />
+          <el-table-column label="处理状态" width="120" align="center">
             <template #default="{ row }">
-              <el-button link type="primary" @click="handleDetail(row.id)">查看详情</el-button>
-              <el-button link type="danger" v-if="row.status === 1" @click="handleDelete(row.id)">撤销</el-button>
+              <el-tag :type="getStatusTag(row.status)" effect="light" round size="large" style="font-weight: bold;">
+                {{ getStatusText(row.status) }}
+              </el-tag>
             </template>
           </el-table-column>
+          <el-table-column label="操作" min-width="150" align="center" fixed="right">
+            <template #default="{ row }">
+              <el-button link type="primary" style="font-weight: bold;" @click="handleDetail(row.id)">
+                <el-icon style="margin-right: 4px;"><View /></el-icon>查看详情
+              </el-button>
+              <el-button link type="danger" v-if="row.status === 1" @click="handleDelete(row.id)">
+                <el-icon style="margin-right: 4px;"><Delete /></el-icon>撤销
+              </el-button>
+            </template>
+          </el-table-column>
+          <template #empty>
+            <el-empty description="暂无报修记录" :image-size="100"></el-empty>
+          </template>
         </el-table>
       </el-card>
 
@@ -97,6 +116,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import request from '@/api/request'
 import NavBar from '@/components/NavBar.vue'
+import { View, Delete } from '@element-plus/icons-vue'
 
 const tableData = ref([])
 const showAddDialog = ref(false)
@@ -164,3 +184,52 @@ const handleDetail = async (id: number) => {
 
 onMounted(() => loadData())
 </script>
+
+
+<style scoped>
+/* 整个页面的大容器，保证背景铺满 */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 页面主体进场动效与全宽布局 */
+.page-wrapper {
+  padding: 0 40px 24px 40px; /* 顶部0，左右40px（和导航栏对齐），底部24px */
+  flex: 1; /* 让主体内容撑满剩下的屏幕高度 */
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 高级悬浮卡片（取消原有的任何限制，让卡片自然撑满） */
+.el-card, .el-tabs {
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  width: 100%; /* 强制占据 100% 宽度 */
+}
+.el-card:hover, .el-tabs:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 表格圆角与无缝处理 */
+.el-table {
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+.el-table th.el-table__cell {
+  background-color: #f8fafc !important;
+  color: #475569;
+  font-weight: 600;
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+</style>

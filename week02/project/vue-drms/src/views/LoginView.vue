@@ -1,63 +1,45 @@
 <template>
   <div class="login-container">
-    <div class="login-box">
-      <!-- 标题区域 -->
-      <div class="login-header">
+    <div class="glass-card animate-fade-in-up">
+      <div class="header">
+        <div class="logo-box">
+          <el-icon><Monitor /></el-icon>
+        </div>
         <h2>宿舍报修系统</h2>
-        <p>Dormitory Repair Management System</p>
+        <p class="subtitle">{{ isLogin ? '欢迎回来，请登录您的账户' : '创建新账户，开启便捷校园生活' }}</p>
       </div>
 
-      <!-- 1. 登录表单区域 -->
-      <el-form
-        ref="loginFormRef"
-        :model="loginForm"
-        :rules="loginRules"
-        label-width="0"
-        class="login-form"
-        size="large"
-      >
-        <el-form-item prop="userId">
-          <el-input v-model="loginForm.userId" placeholder="请输入工号/学号" prefix-icon="User" clearable />
+      <el-form :model="form" class="auth-form" size="large">
+        <el-form-item v-if="!isLogin" class="animate-item" style="animation-delay: 0.1s;">
+          <el-input v-model="form.username" placeholder="请输入姓名" prefix-icon="User" />
+        </el-form-item>
+        <el-form-item class="animate-item" style="animation-delay: 0.2s;">
+          <el-input v-model="form.userId" placeholder="请输入学号/工号" prefix-icon="Postcard" />
+        </el-form-item>
+        <el-form-item class="animate-item" style="animation-delay: 0.3s;">
+          <el-input v-model="form.password" type="password" show-password placeholder="请输入密码" prefix-icon="Lock" />
         </el-form-item>
 
-        <el-form-item prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" prefix-icon="Lock" show-password @keyup.enter="handleLogin" />
+        <el-form-item v-if="!isLogin" class="animate-item" style="animation-delay: 0.4s;">
+          <el-radio-group v-model="form.role">
+            <el-radio-button :value="1">我是学生</el-radio-button>
+            <el-radio-button :value="2">我是管理员</el-radio-button>
+          </el-radio-group>
         </el-form-item>
 
-        <el-form-item>
-          <el-button type="primary" :loading="loading" class="w-100" @click="handleLogin">登 录</el-button>
+        <el-form-item class="animate-item" style="animation-delay: 0.5s; margin-top: 30px;">
+          <el-button type="primary" :loading="loading" class="submit-btn" @click="submitAuth">
+            {{ isLogin ? '立 即 登 录' : '注 册 账 号' }}
+          </el-button>
         </el-form-item>
-
-        <!-- 注册入口 -->
-        <div class="login-footer">
-          <span>还没有账号？</span>
-          <el-link type="primary" @click="showRegisterDialog = true">立即注册</el-link>
+        
+        <div class="toggle-text animate-item" style="animation-delay: 0.6s;">
+          <span @click="toggleMode">
+            {{ isLogin ? '还没有账号？点击注册' : '已有账号？返回登录' }}
+          </span>
         </div>
       </el-form>
     </div>
-
-    <!-- 2. 注册弹窗区域 -->
-    <el-dialog v-model="showRegisterDialog" title="用户注册" width="400px" :close-on-click-modal="false">
-      <el-form ref="registerFormRef" :model="registerForm" :rules="registerRules" label-width="80px">
-        <el-form-item label="工号" prop="userId">
-          <el-input v-model="registerForm.userId" placeholder="例如：3225004123" />
-          <div class="form-tip">学生：3125/3225开头；管理员：0025开头</div>
-        </el-form-item>
-        <el-form-item label="姓名" prop="username">
-          <el-input v-model="registerForm.username" placeholder="请输入真实姓名" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="registerForm.password" type="password" show-password />
-        </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input v-model="registerForm.confirmPassword" type="password" show-password />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showRegisterDialog = false">取消</el-button>
-        <el-button type="primary" :loading="registerLoading" @click="handleRegister">注册</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -65,115 +47,126 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
-import request from '@/api/request' 
-
-// 👇 修复点 1: 使用 'import type' 导入纯类型，解决 verbatimModuleSyntax 报错
-import type { FormInstance, FormRules } from 'element-plus'
+import { User, Lock, Postcard, Monitor } from '@element-plus/icons-vue'
+import request from '@/api/request'
 
 const router = useRouter()
+const isLogin = ref(true)
 const loading = ref(false)
-const registerLoading = ref(false)
-const showRegisterDialog = ref(false)
 
-// ================= 登录逻辑部分 =================
-const loginFormRef = ref<FormInstance>()
-const loginForm = reactive({ userId: '', password: '' })
+const form = reactive({ username: '', userId: '', password: '', role: 1 })
 
-const validateUserId = (rule: any, value: string, callback: any) => {
-  if (!value) return callback(new Error('请输入工号'))
-  const stuRegex = /^(3125|3225)\d{6}$/
-  const adminRegex = /^0025\d{6}$/
-  if (stuRegex.test(value) || adminRegex.test(value)) callback()
-  else callback(new Error('格式错误：学生3125/3225+6位，管理员0025+6位'))
+const toggleMode = () => {
+  isLogin.value = !isLogin.value
+  form.username = ''; form.userId = ''; form.password = ''
 }
 
-const loginRules = reactive<FormRules>({
-  userId: [{ validator: validateUserId, trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
-})
+const submitAuth = async () => {
+  if (!form.userId || !form.password) return ElMessage.warning('请填写完整信息')
+  if (!isLogin.value && !form.username) return ElMessage.warning('请输入姓名')
 
-const handleLogin = async () => {
-  if (!loginFormRef.value) return
-  await loginFormRef.value.validate(async (valid) => {
-    if (!valid) return
-    loading.value = true
-    try {
-      // 👇 修复点 2: 加上 ': any' 断言，告诉 TS 返回的是后端数据对象，而不是 AxiosResponse
-      const res: any = await request.post('/user/login', loginForm)
-      
-      if (res.code === 1) {
-        ElMessage.success('登录成功')
-        const info = res.data
-        localStorage.setItem('token', info.token)
-        localStorage.setItem('userInfo', JSON.stringify(info))
-        
-        // 根据 nextStep 跳转
-        if (info.nextStep === 'STU_BIND') router.push({ name: 'BindRoom' })
-        else if (info.nextStep === 'STU_HOME') router.push({ name: 'StudentHome' })
-        else if (info.nextStep === 'ADMIN_HOME') router.push({ name: 'AdminHome' })
-        else router.push({ name: info.role === 'ADMIN' ? 'AdminHome' : 'StudentHome' })
-      } else {
-        ElMessage.error(res.msg || '登录失败')
-      }
-    } catch (e) { 
-      ElMessage.error('网络错误') 
-      console.error(e)
-    }
-    finally { loading.value = false }
-  })
-}
-
-// ================= 注册逻辑部分 =================
-const registerFormRef = ref<FormInstance>()
-const registerForm = reactive({ userId: '', username: '', password: '', confirmPassword: '' })
-
-const validateConfirm = (rule: any, value: string, callback: any) => {
-  if (value !== registerForm.password) callback(new Error('两次密码不一致'))
-  else callback()
-}
-
-const registerRules = reactive<FormRules>({
-  userId: [{ validator: validateUserId, trigger: 'blur' }],
-  username: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  password: [{ required: true, min: 6, message: '密码至少6位', trigger: 'blur' }],
-  confirmPassword: [{ validator: validateConfirm, trigger: 'blur' }]
-})
-
-const handleRegister = async () => {
-  if (!registerFormRef.value) return
-  await registerFormRef.value.validate(async (valid) => {
-    if (!valid) return
-    registerLoading.value = true
-    try {
-      const { confirmPassword, ...params } = registerForm
-      // 👇 修复点 2: 同样加上 ': any'
-      const res: any = await request.post('/user/register', params)
-      
-      if (res.code === 1) {
+  loading.value = true
+  try {
+    const url = isLogin.value ? '/user/login' : '/user/register'
+    const res: any = await request.post(url, form)
+    if (res.code === 1) {
+      if (!isLogin.value) {
         ElMessage.success('注册成功，请登录')
-        showRegisterDialog.value = false
-        loginForm.userId = registerForm.userId
-        loginForm.password = registerForm.password
+        toggleMode()
       } else {
-        ElMessage.error(res.msg || '注册失败')
+        ElMessage.success('登录成功')
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('userInfo', JSON.stringify(res.data.user || form)) // 兼容处理
+        
+        const role = res.data.user?.role || form.role
+        const nextStep = res.data.nextStep // 根据你后端的判断
+        
+        if (nextStep === 'STU_BIND') router.push({ name: 'BindRoom' })
+        else if (role === 2) router.push({ name: 'AdminHome' })
+        else router.push({ name: 'StudentHome' })
       }
-    } catch (e) { 
-      ElMessage.error('注册请求失败') 
-      console.error(e)
+    } else {
+      ElMessage.error(res.msg || '操作失败')
     }
-    finally { registerLoading.value = false }
-  })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <style scoped>
-.login-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.login-box { width: 400px; padding: 40px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-.login-header { text-align: center; margin-bottom: 30px; }
-.login-header h2 { color: #333; margin-bottom: 10px; }
-.login-header p { color: #999; font-size: 14px; }
-.w-100 { width: 100%; }
-.login-footer { text-align: right; font-size: 14px; color: #666; margin-top: 10px; }
-.form-tip { font-size: 12px; color: #999; line-height: 1.5; margin-top: 4px; }
+/* 动态渐变背景 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 毛玻璃卡片 */
+.glass-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.header { text-align: center; margin-bottom: 35px; }
+.logo-box {
+  width: 56px; height: 56px;
+  margin: 0 auto 15px;
+  background: linear-gradient(135deg, #409eff 0%, #36cfc9 100%);
+  border-radius: 14px;
+  display: flex; justify-content: center; align-items: center;
+  color: white; font-size: 28px;
+  box-shadow: 0 8px 16px rgba(64, 158, 255, 0.3);
+}
+.header h2 { margin: 0; font-size: 24px; color: #333; letter-spacing: 1px; }
+.subtitle { color: #888; font-size: 14px; margin-top: 8px; }
+
+/* 按钮及交互 */
+.submit-btn {
+  width: 100%;
+  border-radius: 10px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #409eff 0%, #3a8ee6 100%);
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.4);
+}
+
+.toggle-text { text-align: center; font-size: 14px; color: #409eff; cursor: pointer; transition: color 0.3s; }
+.toggle-text:hover { color: #66b1ff; text-decoration: underline; }
+
+/* 🚀 进场动画组 */
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
