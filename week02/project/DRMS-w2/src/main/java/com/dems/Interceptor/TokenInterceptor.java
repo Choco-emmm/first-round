@@ -17,13 +17,10 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-//        //1.获取请求路径
-//        String path = request.getRequestURI();
-//        //2.判断是否是登录请求，如果路径包含/login，说明是登录操作，放行
-//        if (path.contains("/login")) {
-//            log.info("登录操作");
-//            return  true;
-//        }
+        // 1. 放行浏览器的预检请求 (OPTIONS)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
         //3.获取请求头中的token
         String token = request.getHeader("token");
         //4.判断token是否存在，若不存在说明用户没有登录，返回401
