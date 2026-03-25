@@ -49,31 +49,43 @@
               </el-form-item>
             </el-form>
 
-            <el-table :data="repairList" border @selection-change="handleSelectionChange">
-              <el-table-column type="selection" width="55" />
-              <el-table-column prop="id" label="单号" width="80" />
-              <el-table-column prop="stuName" label="申请人" width="100" />
-              <el-table-column prop="buildingId" label="楼号" width="80" />
-              <el-table-column prop="roomId" label="房号" width="80" />
-              <el-table-column label="类型">
-                <template #default="{ row }">{{ getTypeText(row.type) }}</template>
-              </el-table-column>
-              <el-table-column label="状态" width="120">
-                <template #default="{ row }">
-                  <el-select v-model="row.status" @change="updateStatus(row.id, row.status)" size="small">
-                    <el-option label="待处理" :value="1" />
-                    <el-option label="处理中" :value="2" />
-                    <el-option label="已完成" :value="3" />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="140">
-                <template #default="{ row }">
-                  <el-button link type="primary" @click="handleDetail(row.id)">详情</el-button>
-                  <el-button link type="danger" @click="deleteSingle(row.id)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+           <el-table 
+  :data="repairList" 
+  stripe 
+  size="large"
+  style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #ebeef5;"
+  :header-cell-style="{ background: '#f8fafc', color: '#334155', fontWeight: 'bold' }"
+  @selection-change="handleSelectionChange"
+>
+  <el-table-column type="selection" width="55" align="center" />
+  <el-table-column prop="id" label="单号" min-width="80" align="center" />
+  <el-table-column prop="stuName" label="申请人" min-width="120" align="center" />
+  <el-table-column prop="buildingId" label="楼号" min-width="100" align="center" />
+  <el-table-column prop="roomId" label="房号" min-width="100" align="center" />
+  
+  <el-table-column label="类型" min-width="120" align="center">
+    <template #default="{ row }">
+      <span style="font-weight: 500; color: #475569;">{{ getTypeText(row.type) }}</span>
+    </template>
+  </el-table-column>
+  
+  <el-table-column label="状态" min-width="150" align="center">
+    <template #default="{ row }">
+      <el-select v-model="row.status" @change="updateStatus(row.id, row.status)" size="default" style="width: 110px;">
+        <el-option label="待处理" :value="1" />
+        <el-option label="处理中" :value="2" />
+        <el-option label="已完成" :value="3" />
+      </el-select>
+    </template>
+  </el-table-column>
+  
+  <el-table-column label="操作" min-width="140" align="center" fixed="right">
+    <template #default="{ row }">
+      <el-button link type="primary" @click="handleDetail(row.id)" style="font-weight: bold;">详情</el-button>
+      <el-button link type="danger" @click="deleteSingle(row.id)">删除</el-button>
+    </template>
+  </el-table-column>
+</el-table>
           </el-tab-pane>
 
           <el-tab-pane label="系统操作日志">
@@ -83,14 +95,26 @@
               </el-button>
             </div>
             
-            <el-table :data="logList" border stripe>
-              <el-table-column prop="id" label="ID" width="60" />
-              <el-table-column prop="operateUserId" label="操作人Id" width="100" />
-              <el-table-column prop="className" label="类名" show-overflow-tooltip />
-              <el-table-column prop="methodName" label="方法名" />
-              <el-table-column prop="operateTime" label="时间" width="180"/>
-              <el-table-column prop="costTime" label="耗时(ms)" width="80" />
-            </el-table>
+         <el-table 
+  :data="logList" 
+  stripe 
+  size="large"
+  style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #ebeef5;"
+  :header-cell-style="{ background: '#f8fafc', color: '#334155', fontWeight: 'bold' }"
+>
+  <el-table-column prop="id" label="ID" width="80" align="center" />
+  <el-table-column prop="operateUserId" label="操作人ID" min-width="100" align="center" />
+  <el-table-column prop="className" label="类名" min-width="200" show-overflow-tooltip />
+  <el-table-column prop="methodName" label="方法名" min-width="150" show-overflow-tooltip />
+  <el-table-column prop="operateTime" label="时间" min-width="180" align="center" />
+  <el-table-column prop="costTime" label="耗时(ms)" min-width="100" align="center">
+    <template #default="{ row }">
+      <el-tag :type="row.costTime > 500 ? 'danger' : 'info'" effect="plain">
+        {{ row.costTime }} ms
+      </el-tag>
+    </template>
+  </el-table-column>
+</el-table>
           </el-tab-pane>
         </el-tabs>
 
@@ -232,9 +256,7 @@ onMounted(() => {
   border: none !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.9);
-  /* ✨ 修复：移除了极度消耗 GPU 的 backdrop-filter，解决大面积页面卡顿问题 */
+  background: rgba(255, 255, 255, 0.95);
   width: 100%; 
 }
 .el-card:hover, .el-tabs:hover {

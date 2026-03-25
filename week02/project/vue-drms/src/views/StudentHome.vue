@@ -205,8 +205,7 @@ onMounted(() => loadData())
   border: none !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   width: 100%; 
 }
 .el-card:hover, .el-tabs:hover {
