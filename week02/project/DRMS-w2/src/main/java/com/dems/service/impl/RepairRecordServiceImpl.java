@@ -30,7 +30,7 @@ public class RepairRecordServiceImpl implements RepairRecordService {
         log.info("开始创建报修单，用户ID: {}", UserContext.getUserId());
 
         //先判断rr中的一些数据是否为空
-        if(rr.getStuName()==null||rr.getBuildingId()==null||rr.getRoomId()==null||rr.getType()==null||rr.getDetail()==null){
+        if(rr.getStuName()==null||rr.getBuildingId()==null||rr.getRoomId()==null||rr.getType()==null||rr.getDetail()==null||rr.getDetail().isEmpty()){
             // 记录警告日志
             log.warn("创建报修单失败：必要参数为空。用户ID: {}", UserContext.getUserId());
             throw new RuntimeException("数据不能为空！");
@@ -49,9 +49,11 @@ public class RepairRecordServiceImpl implements RepairRecordService {
         repairRecordMapper.insertRecord(rr);
         log.info("报修单主表插入成功，生成ID: {}", rr.getId());
 
-        //再去更新图片的repair_id
-        repairImageMapper.batchUpdate(rr.getId(),rr.getImgIds());
-        log.info("报修单图片关联更新完成，报修单ID: {}", rr.getId());
+        //再去更新图片的repair_id（如果有的话）
+        if(rr.getImgIds()!=null&& !rr.getImgIds().isEmpty()){
+            repairImageMapper.batchUpdate(rr.getId(),rr.getImgIds());
+            log.info("报修单图片关联更新完成，报修单ID: {}", rr.getId());
+        }
     }
 
     @Override
