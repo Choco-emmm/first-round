@@ -1,118 +1,126 @@
 <template>
-  <NavBar />
-  <div class="page-wrapper">
-    <div style="padding: 20px; margin: 0 auto;">
-      <el-tabs type="border-card">
-        <el-tab-pane label="报修单管理">
-          <el-form :inline="true" :model="searchForm" style="margin-bottom: 15px;">
-            <el-form-item label="姓名">
-              <el-input 
-                v-model="searchForm.stuName" 
-                placeholder="模糊查询" 
-                clearable 
-                @input="loadRepairs"
-                @clear="loadRepairs"
-              />
-            </el-form-item>
-            
-            <el-form-item label="类型">
-              <el-select 
-                v-model="searchForm.type" 
-                clearable 
-                placeholder="全部分类" 
-                style="width: 120px;"
-                @change="loadRepairs"
-              >
-                <el-option label="水电器" :value="1" />
-                <el-option label="家具" :value="2" />
-                <el-option label="其他" :value="3" />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item label="状态">
-              <el-select 
-                v-model="searchForm.status" 
-                clearable 
-                placeholder="全部状态" 
-                style="width: 120px;"
-                @change="loadRepairs"
-              >
-                <el-option label="待处理" :value="1" />
-                <el-option label="处理中" :value="2" />
-                <el-option label="已完成" :value="3" />
-              </el-select>
-            </el-form-item>
-            
-            <el-form-item>
-              <el-button type="danger" @click="batchDelete">批量删除</el-button>
-            </el-form-item>
-          </el-form>
-
-          <el-table :data="repairList" border @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="55" />
-            <el-table-column prop="id" label="单号" width="80" />
-            <el-table-column prop="stuName" label="申请人" width="100" />
-            <el-table-column prop="buildingId" label="楼号" width="80" />
-            <el-table-column prop="roomId" label="房号" width="80" />
-            <el-table-column label="类型">
-              <template #default="{ row }">{{ getTypeText(row.type) }}</template>
-            </el-table-column>
-            <el-table-column label="状态" width="120">
-              <template #default="{ row }">
-                <el-select v-model="row.status" @change="updateStatus(row.id, row.status)" size="small">
+  <div class="app-layout">
+    <NavBar />
+    <div class="page-wrapper">
+      <div style="padding: 20px; margin: 0 auto;">
+        <el-tabs type="border-card">
+          <el-tab-pane label="报修单管理">
+            <el-form :inline="true" :model="searchForm" style="margin-bottom: 15px;">
+              <el-form-item label="姓名">
+                <el-input 
+                  v-model="searchForm.stuName" 
+                  placeholder="模糊查询" 
+                  clearable 
+                  @input="loadRepairs"
+                  @clear="loadRepairs"
+                />
+              </el-form-item>
+              
+              <el-form-item label="类型">
+                <el-select 
+                  v-model="searchForm.type" 
+                  clearable 
+                  placeholder="全部分类" 
+                  style="width: 120px;"
+                  @change="loadRepairs"
+                >
+                  <el-option label="水电器" :value="1" />
+                  <el-option label="家具" :value="2" />
+                  <el-option label="其他" :value="3" />
+                </el-select>
+              </el-form-item>
+              
+              <el-form-item label="状态">
+                <el-select 
+                  v-model="searchForm.status" 
+                  clearable 
+                  placeholder="全部状态" 
+                  style="width: 120px;"
+                  @change="loadRepairs"
+                >
                   <el-option label="待处理" :value="1" />
                   <el-option label="处理中" :value="2" />
                   <el-option label="已完成" :value="3" />
                 </el-select>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="140">
-              <template #default="{ row }">
-                <el-button link type="primary" @click="handleDetail(row.id)">详情</el-button>
-                <el-button link type="danger" @click="deleteSingle(row.id)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
+              </el-form-item>
+              
+              <el-form-item>
+                <el-button type="danger" @click="batchDelete">批量删除</el-button>
+              </el-form-item>
+            </el-form>
 
-        <el-tab-pane label="系统操作日志">
-          <el-table :data="logList" border stripe>
-            <el-table-column prop="id" label="ID" width="60" />
-            <el-table-column prop="operateUserId" label="操作人Id" width="100" />
-            <el-table-column prop="className" label="类名" show-overflow-tooltip />
-            <el-table-column prop="methodName" label="方法名" />
-            <el-table-column prop="operateTime" label="时间" width="180"/>
-            <el-table-column prop="costTime" label="耗时(ms)" width="80" />
-          </el-table>
-        </el-tab-pane>
-      </el-tabs>
+            <el-table :data="repairList" border @selection-change="handleSelectionChange">
+              <el-table-column type="selection" width="55" />
+              <el-table-column prop="id" label="单号" width="80" />
+              <el-table-column prop="stuName" label="申请人" width="100" />
+              <el-table-column prop="buildingId" label="楼号" width="80" />
+              <el-table-column prop="roomId" label="房号" width="80" />
+              <el-table-column label="类型">
+                <template #default="{ row }">{{ getTypeText(row.type) }}</template>
+              </el-table-column>
+              <el-table-column label="状态" width="120">
+                <template #default="{ row }">
+                  <el-select v-model="row.status" @change="updateStatus(row.id, row.status)" size="small">
+                    <el-option label="待处理" :value="1" />
+                    <el-option label="处理中" :value="2" />
+                    <el-option label="已完成" :value="3" />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="140">
+                <template #default="{ row }">
+                  <el-button link type="primary" @click="handleDetail(row.id)">详情</el-button>
+                  <el-button link type="danger" @click="deleteSingle(row.id)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
 
-      <el-dialog v-model="showDetailDialog" title="报修单详情" width="500px">
-        <div v-loading="detailLoading">
-          <p style="line-height: 1.6; margin-bottom: 15px; padding: 10px; background: #f5f7fa; border-radius: 4px;">
-            <strong>问题描述：</strong><br/>
-            {{ detailData.detail || '暂无详细描述' }}
-          </p>
-          
-          <div v-if="detailData.imgUrls && detailData.imgUrls.length > 0">
-            <strong>报修图片：</strong>
-            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-              <el-image
-                v-for="(filename, index) in detailData.imgUrls"
-                :key="index"
-                :src="getImageUrl(filename)"
-                :preview-src-list="detailData.imgUrls.map(getImageUrl)"
-                :initial-index="index"
-                fit="cover"
-                style="width: 100px; height: 100px; border-radius: 6px; border: 1px solid #eee; cursor: pointer;"
-              />
+          <el-tab-pane label="系统操作日志">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+              <el-button type="primary" plain @click="loadLogs">
+                <el-icon style="margin-right: 4px;"><Refresh /></el-icon> 刷新日志
+              </el-button>
+            </div>
+            
+            <el-table :data="logList" border stripe>
+              <el-table-column prop="id" label="ID" width="60" />
+              <el-table-column prop="operateUserId" label="操作人Id" width="100" />
+              <el-table-column prop="className" label="类名" show-overflow-tooltip />
+              <el-table-column prop="methodName" label="方法名" />
+              <el-table-column prop="operateTime" label="时间" width="180"/>
+              <el-table-column prop="costTime" label="耗时(ms)" width="80" />
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+
+        <el-dialog v-model="showDetailDialog" title="报修单详情" width="500px" append-to-body>
+          <div v-loading="detailLoading">
+            <p style="line-height: 1.6; margin-bottom: 15px; padding: 10px; background: #f5f7fa; border-radius: 4px;">
+              <strong>问题描述：</strong><br/>
+              {{ detailData.detail || '暂无详细描述' }}
+            </p>
+            
+            <div v-if="detailData.imgUrls && detailData.imgUrls.length > 0">
+              <strong>报修图片：</strong>
+              <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <el-image
+                  v-for="(filename, index) in detailData.imgUrls"
+                  :key="index"
+                  :src="getImageUrl(filename)"
+                  :preview-src-list="detailData.imgUrls.map(getImageUrl)"
+                  :initial-index="index"
+                  fit="cover"
+                  style="width: 100px; height: 100px; border-radius: 6px; border: 1px solid #eee; cursor: pointer;"
+                />
+              </div>
+            </div>
+            <div v-else style="color: #999; margin-top: 10px;">
+              <strong>报修图片：</strong>暂无上传图片
             </div>
           </div>
-          <div v-else style="color: #999; margin-top: 10px;">
-            <strong>报修图片：</strong>暂无上传图片
-          </div>
-        </div>
-      </el-dialog>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>
@@ -122,6 +130,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '@/api/request'
 import NavBar from '@/components/NavBar.vue'
+import { Refresh } from '@element-plus/icons-vue' // ✨ 新增：引入刷新图标
 
 const repairList = ref([])
 const logList = ref([])
@@ -134,11 +143,9 @@ const detailData = ref<any>({})
 
 const getTypeText = (type: number) => ({ 1: '水电器', 2: '家具', 3: '其他' }[type] || '未知')
 
-// ✨ 最新的极简版图片拼接逻辑 ✨
 const getImageUrl = (filename: string) => {
   if (!filename) return ''
   if (filename.startsWith('http')) return filename
-  // 直接加上后端的 /images/ 映射前缀
   return 'http://localhost:8080/images/' + filename
 }
 
@@ -149,7 +156,14 @@ const loadRepairs = async () => {
 
 const loadLogs = async () => {
   const res: any = await request.get('/operateLog/admin')
-  if (res.code === 1) logList.value = res.data || []
+  if (res.code === 1) {
+    const data = res.data || []
+    // ✨ 新增：前端对数据按照 operateTime 字段进行逆序排序（最新的排最前）
+    logList.value = data.sort((a: any, b: any) => {
+      return new Date(b.operateTime).getTime() - new Date(a.operateTime).getTime()
+    })
+    ElMessage.success('日志已刷新')
+  }
 }
 
 const handleSelectionChange = (val: any[]) => { selectedIds.value = val.map(v => v.id) }
@@ -185,7 +199,17 @@ const handleDetail = async (id: number) => {
   }
 }
 
-onMounted(() => { loadRepairs(); loadLogs() })
+// ✨ 初始化时不显示刷新提示，仅加载数据
+onMounted(() => { 
+  loadRepairs(); 
+  request.get('/operateLog/admin').then((res: any) => {
+    if (res.code === 1) {
+      logList.value = (res.data || []).sort((a: any, b: any) => 
+        new Date(b.operateTime).getTime() - new Date(a.operateTime).getTime()
+      )
+    }
+  })
+})
 </script>
 
 <style scoped>
@@ -198,20 +222,20 @@ onMounted(() => { loadRepairs(); loadLogs() })
 
 /* 页面主体进场动效与全宽布局 */
 .page-wrapper {
-  padding: 0 40px 24px 40px; /* 顶部0，左右40px（和导航栏对齐），底部24px */
-  flex: 1; /* 让主体内容撑满剩下的屏幕高度 */
+  padding: 0 40px 24px 40px; 
+  flex: 1; 
   animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* 高级悬浮卡片（取消原有的任何限制，让卡片自然撑满） */
+/* 高级悬浮卡片 */
 .el-card, .el-tabs {
   border: none !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
   transition: all 0.3s ease;
   background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  width: 100%; /* 强制占据 100% 宽度 */
+  /* ✨ 修复：移除了极度消耗 GPU 的 backdrop-filter，解决大面积页面卡顿问题 */
+  width: 100%; 
 }
 .el-card:hover, .el-tabs:hover {
   transform: translateY(-4px);

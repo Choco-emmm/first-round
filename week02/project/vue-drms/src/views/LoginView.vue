@@ -76,9 +76,10 @@ const submitAuth = async () => {
       } else {
         ElMessage.success('登录成功')
         localStorage.setItem('token', res.data.token)
-        localStorage.setItem('userInfo', JSON.stringify(res.data.user || form)) // 兼容处理
+        // ✨ 修复：增加 res.data 作为兼容后备，确保能存入正确的信息
+        localStorage.setItem('userInfo', JSON.stringify(res.data.user || res.data || form))
         
-        const role = res.data.user?.role || form.role
+        const role = res.data.user?.role || res.data?.role || form.role        
         const nextStep = res.data.nextStep // 根据你后端的判断
         
         if (nextStep === 'STU_BIND') router.push({ name: 'BindRoom' })
