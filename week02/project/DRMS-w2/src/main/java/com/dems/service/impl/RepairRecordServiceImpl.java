@@ -6,6 +6,7 @@ import com.dems.mapper.RepairRecordMapper;
 import com.dems.pojo.RepairRecord;
 import com.dems.pojo.RepairRecordDetail;
 import com.dems.service.RepairRecordService;
+import com.dems.utils.RepairRecordUtil;
 import com.dems.utils.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +31,17 @@ public class RepairRecordServiceImpl implements RepairRecordService {
         log.info("开始创建报修单，用户ID: {}", UserContext.getUserId());
 
         //先判断rr中的一些数据是否为空
-        if(rr.getStuName()==null||rr.getBuildingId()==null||rr.getRoomId()==null||rr.getType()==null||rr.getDetail()==null||rr.getDetail().isEmpty()){
+        if(RepairRecordUtil.isEmpty(rr.getStuName(),rr.getRoomId(),rr.getType(),rr.getDetail(),rr.getBuildingId())){
             // 记录警告日志
             log.warn("创建报修单失败：必要参数为空。用户ID: {}", UserContext.getUserId());
             throw new RuntimeException("数据不能为空！");
+        }
+
+        //楼号不能为负
+        if(RepairRecordUtil.BuildingIdIsWrong(rr.getBuildingId())){
+            // 记录警告日志
+            log.warn("创建报修单失败：楼号不能为负。用户ID: {}", UserContext.getUserId());
+            throw new RuntimeException("楼号不能为负！");
         }
 
         //通过token获取用户信息
