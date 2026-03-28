@@ -12,6 +12,10 @@ public class Constant {
     public static final String STEP_STU_HOME = "STU_HOME";
     public static final String STEP_ADMIN_HOME = "ADMIN_HOME";
 
+    // Redis中存储token的key
+    public static final String TOKEN_PREFIX = "user:token:";
+    //过期时间
+    public static final Long TOKEN_EXPIRATION = 30L;
     // 私有构造防止实例化
     private Constant() {}
 }

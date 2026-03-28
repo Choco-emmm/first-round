@@ -3,19 +3,25 @@ package com.dems.Interceptor;
 
 import com.dems.utils.Constant;
 import com.dems.utils.JwtUtil;
+import com.dems.utils.RepairRecordUtil;
 import com.dems.utils.UserContext;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 public class TokenInterceptor implements HandlerInterceptor {
+    @Autowired
+    private StringRedisTemplate StringRedisTemplate;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
@@ -40,9 +46,18 @@ public class TokenInterceptor implements HandlerInterceptor {
             UserContext.setData(claims);
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            System.out.println("非法令牌");
+            log.error("非法令牌");
             return false;
         }
+        //通过token查redis里面有没有数据，没有的话就是登录过期
+        String key = Constant.TOKEN_PREFIX + token;
+        if(RepairRecordUtil.isEmpty(StringRedisTemplate.opsForValue().get(key))){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            log.error("登录过期");
+            return false;
+        }
+        //刷新时间
+        StringRedisTemplate.expire(key, Constant.TOKEN_EXPIRATION, TimeUnit.MINUTES);
         //6.获取访问路径,如果是学生专用就看角色是不是学生，是就放行，不是就不放行。管理员的亦然
         String path = request.getRequestURI();
         Integer role = UserContext.getUserRole();

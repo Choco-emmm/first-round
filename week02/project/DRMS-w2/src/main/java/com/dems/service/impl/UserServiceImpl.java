@@ -11,12 +11,14 @@ import com.dems.utils.UserContext;
 import com.dems.utils.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -24,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public LoginInfo login(String userId, String password) {
@@ -40,7 +45,7 @@ public class UserServiceImpl implements UserService {
             String username = user.getUsername();
             Integer role = user.getRole();
 
-            // 生成令牌，封装到LoginInfo
+            // 封装到map
             Map<String, Object> map = new HashMap<>();
             map.put("userId", userId);
             map.put("username", username);
@@ -49,6 +54,10 @@ public class UserServiceImpl implements UserService {
             // 生成令牌
             String token = JwtUtil.generateJwtToken(map);
             loginInfo = new LoginInfo(userId, username, token, user.getRole(), user.getBuildingId(), user.getRoomId(), null);
+            //将令牌信息储存到redis中
+            redisTemplate.opsForValue().set(Constant.TOKEN_PREFIX+token, userId);
+            //设置刷新时间
+            redisTemplate.expire(Constant.TOKEN_PREFIX+token, Constant.TOKEN_EXPIRATION, TimeUnit.MINUTES);
 
             // 看是啥角色
             if (role.equals(Constant.STU_ROLE)) {
@@ -156,7 +165,7 @@ public class UserServiceImpl implements UserService {
 
         if (user == null) {
             log.error("修改密码失败：未找到用户，userId: {}", userId);
-            throw new RuntimeException("用户不存在"); // 防止空指针，虽然原逻辑没写，但加上更安全，若必须完全一致可去掉此块直接让下面报NPE
+            throw new RuntimeException("用户不存在");
         }
 
         if (user.getPassword().equals(password)) {
