@@ -58,6 +58,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         }
         //刷新时间
         StringRedisTemplate.expire(key, Constant.TOKEN_EXPIRATION, TimeUnit.MINUTES);
+        log.info("刷新Token");
         //6.获取访问路径,如果是学生专用就看角色是不是学生，是就放行，不是就不放行。管理员的亦然
         String path = request.getRequestURI();
         Integer role = UserContext.getUserRole();

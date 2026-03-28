@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import router from '@/router' // 确保在文件顶部引入了 router
 
 const request = axios.create({
     baseURL: 'http://localhost:8080',
@@ -54,15 +55,13 @@ request.interceptors.response.use(
     }
 )
 
-// ✨ 杀手锏：原生 JS 跳转
+// ✨ 杀手锏：使用 Vue Router 无刷新跳转
 function handleUnauthorized() {
-    ElMessage.error('登录已过期，请重新登录')
+    ElMessage.error('登录已过期或无权限，请重新登录')
     localStorage.clear()
 
-    // 使用 window.location.href 强制跳回登录页，无视 Vue 的路由作用域问题
-    setTimeout(() => {
-        window.location.href = '/login'
-    }, 500) // 延迟半秒让用户看清错误提示
+    // 放弃 window.location.href，改用 router.push
+    router.push({ name: 'Login' })
 }
 
 export default request
