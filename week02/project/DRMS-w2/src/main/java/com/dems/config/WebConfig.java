@@ -22,10 +22,10 @@ public class WebConfig implements WebMvcConfigurer {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*"); // 允许所有前端地址
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.setAllowCredentials(true); // 允许携带 Cookie/Token
+        config.addAllowedOriginPattern("*"); // 允许所有来源
+        config.addAllowedHeader("*"); // 允许所有请求头
+        config.addAllowedMethod("*"); // 允许所有方法 (GET, POST, OPTIONS 等)
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

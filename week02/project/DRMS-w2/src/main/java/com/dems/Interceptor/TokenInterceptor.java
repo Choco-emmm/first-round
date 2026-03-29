@@ -29,6 +29,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
+
         //3.获取请求头中的token
         String token = request.getHeader("token");
         //4.判断token是否存在，若不存在说明用户没有登录，返回401

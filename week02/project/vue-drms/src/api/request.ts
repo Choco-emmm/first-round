@@ -57,11 +57,10 @@ request.interceptors.response.use(
 
 // ✨ 杀手锏：使用 Vue Router 无刷新跳转
 function handleUnauthorized() {
-    ElMessage.error('登录已过期或无权限，请重新登录')
-    localStorage.clear()
-
-    // 放弃 window.location.href，改用 router.push
-    router.push({ name: 'Login' })
+    console.log('检测到 401，准备强行跳转');
+    localStorage.clear();
+    // 暴力直接，无视所有路由逻辑
+    window.location.href = '/login';
 }
 
 export default request

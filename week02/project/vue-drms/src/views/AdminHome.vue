@@ -264,7 +264,6 @@ const handleDetail = async (id: number) => {
 }
 
 onMounted(async () => { 
-  // 初始化页面时，并行发出两个请求，且共用 loading 状态
   loading.value = true
   try {
     await Promise.all([
@@ -278,7 +277,10 @@ onMounted(async () => {
           ).slice(0, 100)
         }
       })
-    ])
+    ]).catch(err => {
+      // ✨ 拦截器已经处理了 401 跳转，这里只需要捕获异常，防止报红
+      console.log('数据加载中断:', err.message)
+    })
   } finally {
     loading.value = false
   }
